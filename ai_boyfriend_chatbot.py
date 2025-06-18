@@ -1,4 +1,3 @@
-
 import streamlit as st
 import google.generativeai as genai
 
@@ -30,7 +29,19 @@ if prompt := st.chat_input("Say something..."):
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
             try:
-                response = model.generate_content(st.session_state.messages)
+                # Convert messages into plain-text prompt
+                prompt_text = "\n".join(
+                    f"{msg['role'].capitalize()}: {msg['content']}"
+                    for msg in st.session_state.messages[1:]
+                )
+                full_prompt = (
+                    "You are a romantic and emotionally supportive virtual boyfriend. "
+                    "Reply with affection, warmth, and personalized attention. Here's the conversation so far:\n\n"
+                    + prompt_text +
+                    "\n\nBoyfriend:"
+                )
+
+                response = model.generate_content(full_prompt)
                 reply = response.text
                 st.markdown(reply)
                 st.session_state.messages.append({"role": "assistant", "content": reply})
